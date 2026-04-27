@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Scan Viewer</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg-top: #dbe7f4;
+            --bg-bottom: #f6f8fb;
+            --panel: rgba(255, 255, 255, 0.9);
+            --text: #1d2a36;
+            --muted: #5e6c78;
+            --accent: #1f6feb;
+            --border: rgba(29, 42, 54, 0.12);
+            --button-bg: #ffffff;
+            --button-border: rgba(29, 42, 54, 0.14);
+            --danger: #c2410c;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at top left, rgba(255, 255, 255, 0.75), transparent 35%),
+                linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+            color: var(--text);
+            font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+            user-select: none;
+        }
+
+        canvas {
+            display: block;
+            touch-action: none;
+        }
+
+        #overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        #ui {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 2;
+            width: min(420px, calc(100vw - 32px));
+            padding: 16px 18px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--panel);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 12px 30px rgba(31, 45, 61, 0.12);
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        p,
+        li {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        code {
+            padding: 0.12rem 0.34rem;
+            border-radius: 6px;
+            background: rgba(29, 42, 54, 0.08);
+            color: var(--text);
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.88em;
+        }
+
+        #status {
+            margin: 10px 0 14px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(31, 111, 235, 0.08);
+            color: #174ea6;
+            font-size: 0.9rem;
+        }
+
+        #status.error {
+            background: rgba(196, 43, 28, 0.1);
+            color: #8a1c14;
+        }
+
+        #meta {
+            margin-top: 14px;
+            display: grid;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .button-row,
+        .control-group {
+            margin-top: 14px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .button-row {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        button {
+            border: 1px solid var(--button-border);
+            border-radius: 10px;
+            background: var(--button-bg);
+            color: var(--text);
+            padding: 10px 12px;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        button:hover {
+            border-color: rgba(31, 111, 235, 0.35);
+        }
+
+        button.active {
+            background: rgba(31, 111, 235, 0.1);
+            border-color: rgba(31, 111, 235, 0.35);
+            color: #174ea6;
+        }
+
+        button.warn {
+            color: var(--danger);
+        }
+
+        .control-row {
+            display: grid;
+            gap: 4px;
+        }
+
+        .control-row label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 0.85rem;
+            color: var(--text);
+        }
+
+        .control-row span {
+            color: var(--muted);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .control-row input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+
+        @media (max-width: 640px) {
+            #ui {
+                top: 12px;
+                left: 12px;
+                width: calc(100vw - 24px);
+                padding: 14px 16px;
+            }
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <canvas id="overlay"></canvas>
+    <div id="ui">
+        <h1>RealityCapture Room Viewer</h1>
+        <p><code>.glb</code> モデルを localhost で表示し、視点・Depth・3D選択マスクを抽出するビューアです。</p>
+        <div id="status">モデルを読み込み中です...</div>
+        <ul>
+            <li>左ドラッグ: 回転</li>
+            <li>右ドラッグ: 平行移動</li>
+            <li>ホイール: ズーム</li>
+            <li>Shift + クリック: world position を出力</li>
+            <li>3D Select On 中はクリックで編集点を追加</li>
+        </ul>
+        <div id="meta">
+            <div id="model-path">model: test_room01.glb</div>
+            <div id="model-stats">stats: waiting</div>
+            <div id="camera-mode">mode: color</div>
+            <div id="camera-matrices">matrices: waiting</div>
+            <div id="pick-result">pick: waiting</div>
+            <div id="mask-state">mask: empty</div>
+        </div>
+        <div class="button-row">
+            <button id="capture-button" type="button">PNG Capture</button>
+            <button id="camera-button" type="button">Save Camera JSON</button>
+            <button id="depth-toggle" type="button">Depth Mode</button>
+            <button id="reset-view-button" type="button">Reset View</button>
+            <button id="selection-toggle" type="button">3D Select Off</button>
+            <button id="mask-export-button" type="button">Save Mask PNG</button>
+            <button id="selection-clear-button" class="warn" type="button">Clear Selection</button>
+        </div>
+        <div class="control-group">
+            <div class="control-row">
+                <label for="ambient-intensity">
+                    <span>環境光</span>
+                    <span id="ambient-value">1.10</span>
+                </label>
+                <input id="ambient-intensity" type="range" min="0" max="5" step="0.1" value="1.1">
+            </div>
+            <div class="control-row">
+                <label for="key-intensity">
+                    <span>メイン光</span>
+                    <span id="key-value">1.40</span>
+                </label>
+                <input id="key-intensity" type="range" min="0" max="6" step="0.1" value="1.4">
+            </div>
+            <div class="control-row">
+                <label for="fill-intensity">
+                    <span>補助光</span>
+                    <span id="fill-value">0.60</span>
+                </label>
+                <input id="fill-intensity" type="range" min="0" max="4" step="0.1" value="0.6">
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+        const statusEl = document.getElementById('status');
+        const modelPathEl = document.getElementById('model-path');
+        const modelStatsEl = document.getElementById('model-stats');
+        const cameraModeEl = document.getElementById('camera-mode');
+        const cameraMatricesEl = document.getElementById('camera-matrices');
+        const pickResultEl = document.getElementById('pick-result');
+        const maskStateEl = document.getElementById('mask-state');
+
+        const ambientSlider = document.getElementById('ambient-intensity');
+        const keySlider = document.getElementById('key-intensity');
+        const fillSlider = document.getElementById('fill-intensity');
+        const ambientValueEl = document.getElementById('ambient-value');
+        const keyValueEl = document.getElementById('key-value');
+        const fillValueEl = document.getElementById('fill-value');
+
+        const captureButton = document.getElementById('capture-button');
+        const cameraButton = document.getElementById('camera-button');
+        const depthToggleButton = document.getElementById('depth-toggle');
+        const resetViewButton = document.getElementById('reset-view-button');
+        const selectionToggleButton = document.getElementById('selection-toggle');
+        const maskExportButton = document.getElementById('mask-export-button');
+        const selectionClearButton = document.getElementById('selection-clear-button');
+        const overlayCanvas = document.getElementById('overlay');
+        const overlayContext = overlayCanvas.getContext('2d');
+
+        const params = new URLSearchParams(window.location.search);
+        const modelPath = params.get('model') || 'test_room01.glb';
+        modelPathEl.textContent = `model: ${modelPath}`;
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xe8edf3);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.05, 500);
+        camera.position.set(3.5, 2.2, 5.5);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.target.set(0, 1.2, 0);
+        controls.maxDistance = 80;
+        controls.minDistance = 0.4;
+        controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
+        controls.mouseButtons.MIDDLE = THREE.MOUSE.DOLLY;
+        controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
+        controls.touches.ONE = THREE.TOUCH.ROTATE;
+        controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
+        controls.update();
+
+        renderer.domElement.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+        });
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, Number(ambientSlider.value));
+        scene.add(ambientLight);
+
+        const keyLight = new THREE.DirectionalLight(0xffffff, Number(keySlider.value));
+        keyLight.position.set(8, 14, 10);
+        scene.add(keyLight);
+
+        const fillLight = new THREE.DirectionalLight(0xd9e7ff, Number(fillSlider.value));
+        fillLight.position.set(-6, 4, -8);
+        scene.add(fillLight);
+
+        const markerGroup = new THREE.Group();
+        scene.add(markerGroup);
+        const selectionLineMaterial = new THREE.LineBasicMaterial({
+            color: 0xff6b6b,
+            transparent: true,
+            opacity: 0.9
+        });
+
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2();
+        const depthMaterial = new THREE.MeshDepthMaterial({
+            depthPacking: THREE.BasicDepthPacking
+        });
+
+        let loadedModel = null;
+        let defaultView = null;
+        let isDepthMode = false;
+        let isSelectionMode = false;
+        let pointerDownInfo = null;
+        let isSelectingDrag = false;
+        let activeSelectionSurface = null;
+        const selectionPoints = [];
+        let selectionLine = null;
+
+        function setStatus(message, isError = false) {
+            statusEl.textContent = message;
+            statusEl.classList.toggle('error', isError);
+        }
+
+        function resizeOverlay() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const pixelRatio = Math.min(window.devicePixelRatio, 2);
+            overlayCanvas.width = Math.round(width * pixelRatio);
+            overlayCanvas.height = Math.round(height * pixelRatio);
+            overlayCanvas.style.width = `${width}px`;
+            overlayCanvas.style.height = `${height}px`;
+            overlayContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+            overlayContext.clearRect(0, 0, width, height);
+        }
+
+        function updateLightingUi() {
+            ambientValueEl.textContent = Number(ambientSlider.value).toFixed(2);
+            keyValueEl.textContent = Number(keySlider.value).toFixed(2);
+            fillValueEl.textContent = Number(fillSlider.value).toFixed(2);
+        }
+
+        function applyLightingSettings() {
+            ambientLight.intensity = Number(ambientSlider.value);
+            keyLight.intensity = Number(keySlider.value);
+            fillLight.intensity = Number(fillSlider.value);
+            updateLightingUi();
+        }
+
+        function getCameraState() {
+            camera.updateMatrixWorld(true);
+            camera.updateProjectionMatrix();
+
+            return {
+                timestamp: new Date().toISOString(),
+                modelPath,
+                mode: isDepthMode ? 'depth' : 'color',
+                viewport: {
+                    width: renderer.domElement.width,
+                    height: renderer.domElement.height
+                },
+                camera: {
+                    position: camera.position.toArray(),
+                    rotation: camera.rotation.toArray().slice(0, 3),
+                    quaternion: camera.quaternion.toArray(),
+                    target: controls.target.toArray(),
+                    near: camera.near,
+                    far: camera.far,
+                    fov: camera.fov,
+                    aspect: camera.aspect,
+                    matrixWorld: camera.matrixWorld.elements.slice(),
+                    matrixWorldInverse: camera.matrixWorldInverse.elements.slice(),
+                    projectionMatrix: camera.projectionMatrix.elements.slice(),
+                    projectionMatrixInverse: camera.projectionMatrixInverse.elements.slice(),
+                    viewMatrix: camera.matrixWorldInverse.elements.slice()
+                }
+            };
+        }
+
+        function updateCameraDebug() {
+            const state = getCameraState();
+            const position = state.camera.position.map((value) => value.toFixed(2)).join(', ');
+            const target = state.camera.target.map((value) => value.toFixed(2)).join(', ');
+            cameraModeEl.textContent = `mode: ${state.mode}`;
+            cameraMatricesEl.textContent = `camera: pos(${position}) target(${target})`;
+        }
+
+        function updateSelectionUi() {
+            selectionToggleButton.classList.toggle('active', isSelectionMode);
+            selectionToggleButton.textContent = isSelectionMode ? '3D Select On' : '3D Select Off';
+            maskStateEl.textContent = selectionPoints.length > 0
+                ? `mask: ${selectionPoints.length} points`
+                : 'mask: empty';
+            controls.enabled = !isSelectionMode;
+        }
+
+        function frameObject(object3D) {
+            const box = new THREE.Box3().setFromObject(object3D);
+            const size = box.getSize(new THREE.Vector3());
+            const center = box.getCenter(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const fov = THREE.MathUtils.degToRad(camera.fov);
+            const distance = maxDim > 0 ? ((maxDim / 2) / Math.tan(fov / 2)) * 1.8 : 4;
+
+            controls.target.copy(center);
+            camera.position.set(center.x + distance * 0.85, center.y + distance * 0.45, center.z + distance);
+            camera.near = Math.max(distance / 100, 0.01);
+            camera.far = Math.max(distance * 20, 100);
+            camera.updateProjectionMatrix();
+            controls.update();
+
+            defaultView = {
+                cameraPosition: camera.position.clone(),
+                target: controls.target.clone()
+            };
+
+            modelStatsEl.textContent = `stats: ${size.x.toFixed(2)} x ${size.y.toFixed(2)} x ${size.z.toFixed(2)}`;
+            updateCameraDebug();
+        }
+
+        function addFallbackCube() {
+            const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+            const material = new THREE.MeshStandardMaterial({ color: 0x22c55e });
+            const cube = new THREE.Mesh(geometry, material);
+            cube.position.y = 0.75;
+            scene.add(cube);
+            loadedModel = cube;
+            frameObject(cube);
+        }
+
+        function downloadDataUrl(filename, dataUrl) {
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = filename;
+            link.click();
+        }
+
+        function downloadJson(filename, data) {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        }
+
+        function captureScreenshot() {
+            renderer.render(scene, camera);
+            const dataUrl = renderer.domElement.toDataURL('image/png');
+            const suffix = isDepthMode ? 'depth' : 'color';
+            downloadDataUrl(`room-capture-${suffix}.png`, dataUrl);
+            setStatus(`PNG を保存しました (${suffix})。`);
+        }
+
+        function saveCameraState() {
+            const state = getCameraState();
+            downloadJson(`camera-state-${state.mode}.json`, state);
+            console.log('camera-state', state);
+            setStatus(`カメラ行列を保存しました (${state.mode})。`);
+        }
+
+        function setDepthMode(enabled) {
+            isDepthMode = enabled;
+            scene.overrideMaterial = enabled ? depthMaterial : null;
+            depthToggleButton.classList.toggle('active', enabled);
+            depthToggleButton.textContent = enabled ? 'Color Mode' : 'Depth Mode';
+            updateCameraDebug();
+            setStatus(enabled ? 'Depth 表示に切り替えました。' : '通常表示に戻しました。');
+        }
+
+        function resetView() {
+            if (!defaultView) {
+                return;
+            }
+
+            camera.position.copy(defaultView.cameraPosition);
+            controls.target.copy(defaultView.target);
+            controls.update();
+            updateCameraDebug();
+            setStatus('初期視点に戻しました。');
+        }
+
+        function getPointerNdc(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        }
+
+        function createSelectionMarker(point, worldNormal) {
+            const normal = worldNormal.clone().normalize();
+            const marker = new THREE.Mesh(
+                new THREE.SphereGeometry(0.025, 12, 12),
+                new THREE.MeshBasicMaterial({
+                    color: 0xff6b6b,
+                    depthWrite: false
+                })
+            );
+
+            marker.position.copy(point).addScaledVector(normal, 0.01);
+            markerGroup.add(marker);
+            return marker;
+        }
+
+        function rebuildSelectionLine() {
+            if (selectionLine) {
+                markerGroup.remove(selectionLine);
+                selectionLine.geometry.dispose();
+                selectionLine = null;
+            }
+
+            if (selectionPoints.length < 2) {
+                return;
+            }
+
+            const positions = [];
+            for (const item of selectionPoints) {
+                const elevated = item.point.clone().addScaledVector(item.normal, 0.012);
+                positions.push(elevated.x, elevated.y, elevated.z);
+            }
+            const first = selectionPoints[0];
+            const firstElevated = first.point.clone().addScaledVector(first.normal, 0.012);
+            positions.push(firstElevated.x, firstElevated.y, firstElevated.z);
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            selectionLine = new THREE.Line(geometry, selectionLineMaterial);
+            markerGroup.add(selectionLine);
+        }
+
+        function addSelectionPoint(hit) {
+            const point = hit.point.clone();
+            const worldNormal = hit.face
+                ? hit.face.normal.clone().transformDirection(hit.object.matrixWorld)
+                : new THREE.Vector3(0, 1, 0);
+            const mergeDistance = 0.12;
+
+            for (const item of selectionPoints) {
+                if (item.objectUuid !== hit.object.uuid) {
+                    continue;
+                }
+
+                if (item.normal.clone().normalize().dot(worldNormal.clone().normalize()) < 0.985) {
+                    continue;
+                }
+
+                if (item.point.distanceTo(point) < mergeDistance) {
+                    return false;
+                }
+            }
+
+            const marker = createSelectionMarker(point, worldNormal);
+            selectionPoints.push({
+                point,
+                normal: worldNormal,
+                objectUuid: hit.object.uuid,
+                tangent: hit.face
+                    ? new THREE.Vector3().subVectors(
+                        hit.object.localToWorld(
+                            hit.object.geometry.attributes.position
+                                ? new THREE.Vector3().fromBufferAttribute(
+                                    hit.object.geometry.attributes.position,
+                                    hit.face.b
+                                )
+                                : new THREE.Vector3(1, 0, 0)
+                        ),
+                        hit.object.localToWorld(
+                            hit.object.geometry.attributes.position
+                                ? new THREE.Vector3().fromBufferAttribute(
+                                    hit.object.geometry.attributes.position,
+                                    hit.face.a
+                                )
+                                : new THREE.Vector3()
+                        )
+                    ).normalize()
+                    : new THREE.Vector3(1, 0, 0),
+                marker
+            });
+            rebuildSelectionLine();
+            updateSelectionUi();
+            setStatus(`3D 選択点を追加しました (${selectionPoints.length})。`);
+            return true;
+        }
+
+        function canAppendSelection(hit) {
+            if (!activeSelectionSurface) {
+                return true;
+            }
+
+            const worldNormal = hit.face
+                ? hit.face.normal.clone().transformDirection(hit.object.matrixWorld).normalize()
+                : new THREE.Vector3(0, 1, 0);
+
+            if (hit.object.uuid !== activeSelectionSurface.objectUuid) {
+                return false;
+            }
+
+            if (worldNormal.dot(activeSelectionSurface.normal) < 0.985) {
+                return false;
+            }
+
+            const minDistance = 0.08;
+            if (hit.point.distanceTo(activeSelectionSurface.lastPoint) < minDistance) {
+                return false;
+            }
+
+            return true;
+        }
+
+        function appendSelectionFromEvent(event) {
+            if (!isSelectionMode || !loadedModel || event.shiftKey) {
+                return;
+            }
+
+            getPointerNdc(event);
+            raycaster.setFromCamera(pointer, camera);
+            const hits = raycaster.intersectObject(loadedModel, true);
+            if (hits.length === 0) {
+                return;
+            }
+
+            const hit = hits[0];
+            if (!canAppendSelection(hit)) {
+                return;
+            }
+
+            const added = addSelectionPoint(hit);
+            activeSelectionSurface = {
+                objectUuid: hit.object.uuid,
+                normal: hit.face
+                    ? hit.face.normal.clone().transformDirection(hit.object.matrixWorld).normalize()
+                    : new THREE.Vector3(0, 1, 0),
+                lastPoint: hit.point.clone()
+            };
+            if (!added) {
+                return;
+            }
+        }
+
+        function clearSelection() {
+            for (const item of selectionPoints) {
+                markerGroup.remove(item.marker);
+                item.marker.geometry.dispose();
+                item.marker.material.dispose();
+            }
+            selectionPoints.length = 0;
+            rebuildSelectionLine();
+            updateSelectionUi();
+            drawProjectedSelection();
+            setStatus('3D 選択点をクリアしました。');
+        }
+
+        function drawProjectedSelection(targetContext = overlayContext, width = window.innerWidth, height = window.innerHeight) {
+            targetContext.clearRect(0, 0, width, height);
+
+            if (selectionPoints.length === 0) {
+                return;
+            }
+
+            const cameraDirection = new THREE.Vector3();
+            camera.getWorldDirection(cameraDirection);
+            const projectedPoints = [];
+
+            for (const item of selectionPoints) {
+                const projected = item.point.clone().project(camera);
+                if (projected.z < -1 || projected.z > 1) {
+                    continue;
+                }
+
+                const toPoint = item.point.clone().sub(camera.position).normalize();
+                if (toPoint.dot(cameraDirection) <= 0) {
+                    continue;
+                }
+
+                projectedPoints.push({
+                    x: ((projected.x + 1) * 0.5) * width,
+                    y: ((1 - projected.y) * 0.5) * height
+                });
+            }
+
+            if (projectedPoints.length === 0) {
+                return;
+            }
+
+            targetContext.beginPath();
+            targetContext.moveTo(projectedPoints[0].x, projectedPoints[0].y);
+            for (let i = 1; i < projectedPoints.length; i++) {
+                targetContext.lineTo(projectedPoints[i].x, projectedPoints[i].y);
+            }
+
+            if (projectedPoints.length >= 3) {
+                targetContext.closePath();
+                targetContext.fillStyle = targetContext === overlayContext
+                    ? 'rgba(255, 99, 132, 0.22)'
+                    : 'rgba(255, 255, 255, 1)';
+                targetContext.fill();
+            }
+
+            targetContext.strokeStyle = targetContext === overlayContext
+                ? 'rgba(255, 99, 132, 0.95)'
+                : 'rgba(255, 255, 255, 1)';
+            targetContext.lineWidth = targetContext === overlayContext ? 3 : 2;
+            targetContext.stroke();
+
+            if (targetContext === overlayContext) {
+                for (const point of projectedPoints) {
+                    targetContext.beginPath();
+                    targetContext.arc(point.x, point.y, 4, 0, Math.PI * 2);
+                    targetContext.fillStyle = 'rgba(255, 99, 132, 0.95)';
+                    targetContext.fill();
+                }
+            }
+        }
+
+        function exportProjectedMask() {
+            if (selectionPoints.length === 0) {
+                setStatus('保存する 3D 選択点がありません。', true);
+                return;
+            }
+
+            const exportCanvas = document.createElement('canvas');
+            exportCanvas.width = window.innerWidth;
+            exportCanvas.height = window.innerHeight;
+            const exportContext = exportCanvas.getContext('2d');
+            exportContext.fillStyle = 'black';
+            exportContext.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+            drawProjectedSelection(exportContext, exportCanvas.width, exportCanvas.height);
+            downloadDataUrl('room-mask-projected.png', exportCanvas.toDataURL('image/png'));
+            setStatus('3D 選択点から投影マスク PNG を保存しました。');
+        }
+
+        function setSelectionMode(enabled) {
+            isSelectionMode = enabled;
+            isSelectingDrag = false;
+            activeSelectionSurface = null;
+            updateSelectionUi();
+            setStatus(enabled ? '3D 選択モードを有効にしました。' : '3D 選択モードを終了しました。');
+        }
+
+        function pickWorldPosition(event) {
+            if (!loadedModel || !event.shiftKey) {
+                return;
+            }
+
+            getPointerNdc(event);
+            raycaster.setFromCamera(pointer, camera);
+            const hits = raycaster.intersectObject(loadedModel, true);
+            if (hits.length === 0) {
+                pickResultEl.textContent = 'pick: no hit';
+                console.log('world-position', null);
+                return;
+            }
+
+            const point = hits[0].point;
+            const value = point.toArray().map((n) => n.toFixed(4)).join(', ');
+            pickResultEl.textContent = `pick: ${value}`;
+            console.log('world-position', {
+                x: point.x,
+                y: point.y,
+                z: point.z
+            });
+            setStatus(`world position を出力しました: ${value}`);
+        }
+
+        function onPointerDown(event) {
+            pointerDownInfo = {
+                x: event.clientX,
+                y: event.clientY
+            };
+
+            if (isSelectionMode && !event.shiftKey) {
+                isSelectingDrag = true;
+                activeSelectionSurface = null;
+                appendSelectionFromEvent(event);
+            }
+        }
+
+        function onPointerMove(event) {
+            if (!isSelectingDrag) {
+                return;
+            }
+
+            appendSelectionFromEvent(event);
+        }
+
+        function onPointerUp(event) {
+            pickWorldPosition(event);
+            pointerDownInfo = null;
+            isSelectingDrag = false;
+            activeSelectionSurface = null;
+        }
+
+        renderer.domElement.addEventListener('pointerdown', onPointerDown);
+        renderer.domElement.addEventListener('pointermove', onPointerMove);
+        renderer.domElement.addEventListener('pointerup', onPointerUp);
+        renderer.domElement.addEventListener('pointerleave', onPointerUp);
+
+        const loader = new GLTFLoader();
+        loader.load(
+            modelPath,
+            (gltf) => {
+                const model = gltf.scene;
+                model.rotation.x = -Math.PI / 2;
+                scene.add(model);
+                loadedModel = model;
+                frameObject(model);
+                setStatus('モデルの読み込みが完了しました。');
+            },
+            (event) => {
+                if (!event.total) {
+                    return;
+                }
+
+                const progress = Math.round((event.loaded / event.total) * 100);
+                setStatus(`モデルを読み込み中です... ${progress}%`);
+            },
+            (error) => {
+                console.error('モデルの読み込みに失敗しました:', error);
+                setStatus('モデルが見つからないため、ダミー表示に切り替えました。URL の ?model=... で別ファイルも指定できます。', true);
+                modelStatsEl.textContent = 'stats: fallback cube';
+                addFallbackCube();
+            }
+        );
+
+        [ambientSlider, keySlider, fillSlider].forEach((input) => {
+            input.addEventListener('input', () => {
+                applyLightingSettings();
+                updateSelectionUi();
+                for (const item of selectionPoints) {
+                    markerGroup.remove(item.marker);
+                    item.marker.geometry.dispose();
+                    item.marker.material.dispose();
+                    item.marker = createSelectionMarker(item.point, item.normal);
+                }
+                rebuildSelectionLine();
+                drawProjectedSelection();
+            });
+        });
+
+        captureButton.addEventListener('click', captureScreenshot);
+        cameraButton.addEventListener('click', saveCameraState);
+        depthToggleButton.addEventListener('click', () => setDepthMode(!isDepthMode));
+        resetViewButton.addEventListener('click', resetView);
+        selectionToggleButton.addEventListener('click', () => setSelectionMode(!isSelectionMode));
+        maskExportButton.addEventListener('click', exportProjectedMask);
+        selectionClearButton.addEventListener('click', clearSelection);
+
+        resizeOverlay();
+        applyLightingSettings();
+        updateCameraDebug();
+        updateSelectionUi();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            updateCameraDebug();
+            renderer.render(scene, camera);
+            drawProjectedSelection();
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            resizeOverlay();
+            updateCameraDebug();
+            updateSelectionUi();
+        });
+    </script>
+</body>
+</html>
