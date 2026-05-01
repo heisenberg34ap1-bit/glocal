@@ -1,4 +1,10 @@
 # Large generated/binary assets kept locally
 test_room01/
 webgl/test_room01_u0_v0_diffuse.png
+large-assets/
+large-assets.zip
+webgl/slides/build/node_modules/
+webgl/slides/tmp/
+webgl/server.log
+webgl/server.err
 画像/test/
