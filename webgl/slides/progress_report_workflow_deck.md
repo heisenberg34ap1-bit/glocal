@@ -6,33 +6,36 @@ header: "AKIYA REFORM VISION"
 footer: "workflow presentation"
 style: |
   section {
-    font-family: "Aptos", "Yu Gothic UI", "Segoe UI", sans-serif;
-    color: #1f2b33;
-    padding: 38px 46px 34px;
+    font-family: "Yu Mincho", "Hiragino Mincho ProN", "BIZ UDPMincho", serif;
+    color: #f3efe8;
+    padding: 34px 44px 30px;
     background:
-      radial-gradient(circle at 85% 16%, rgba(234, 95, 42, 0.10), transparent 18%),
-      radial-gradient(circle at 12% 84%, rgba(13, 112, 110, 0.10), transparent 22%),
-      linear-gradient(180deg, #f7f1e7 0%, #efe6d8 100%);
+      radial-gradient(circle at 18% 18%, rgba(255,255,255,0.05), transparent 18%),
+      radial-gradient(circle at 84% 24%, rgba(196, 170, 138, 0.08), transparent 20%),
+      linear-gradient(115deg, rgba(255,255,255,0.06), transparent 34%),
+      linear-gradient(180deg, #060606 0%, #101010 54%, #171717 100%);
   }
   section::before {
     content: "";
     position: absolute;
     inset: 0;
-    background-image:
-      linear-gradient(rgba(31, 43, 51, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(31, 43, 51, 0.05) 1px, transparent 1px);
-    background-size: 42px 42px;
-    opacity: 0.18;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.02), transparent 24%, rgba(255,255,255,0.04) 46%, transparent 68%),
+      linear-gradient(32deg, rgba(202, 186, 165, 0.06), transparent 30%, rgba(255,255,255,0.03) 52%, transparent 74%),
+      radial-gradient(circle at 72% 78%, rgba(255,255,255,0.04), transparent 16%);
+    opacity: 0.9;
     pointer-events: none;
+    mix-blend-mode: screen;
   }
   section::after {
     content: "";
     position: absolute;
-    inset: 20px;
-    border: 1px solid rgba(31, 43, 51, 0.10);
+    inset: 18px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 26px;
     box-shadow:
-      0 0 0 1px rgba(255,255,255,0.55) inset,
-      0 18px 48px rgba(73, 54, 34, 0.06);
+      0 0 0 1px rgba(255,255,255,0.03) inset,
+      0 18px 48px rgba(0,0,0,0.26);
     pointer-events: none;
   }
   h1, h2, h3, p, li, div, span {
@@ -40,216 +43,233 @@ style: |
     z-index: 1;
   }
   h1 {
-    margin: 0 0 12px;
-    font-family: "Bahnschrift", "Aptos Display", "Segoe UI", sans-serif;
-    font-size: 1.98em;
-    line-height: 1.02;
+    margin: 0;
+    font-size: 1.82em;
+    line-height: 1.12;
     letter-spacing: 0.02em;
-    color: #18242b;
+    color: #fbf7f0;
+    font-weight: 700;
   }
   h2 {
-    margin: 0 0 10px;
-    font-family: "Bahnschrift", "Aptos Display", "Segoe UI", sans-serif;
-    font-size: 0.92em;
-    color: #b45733;
-    letter-spacing: 0.16em;
+    margin: 0 0 12px;
+    font-size: 0.82em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
+    color: #bea27b;
+    font-weight: 700;
   }
   h3 {
     margin: 0 0 8px;
-    font-size: 0.72em;
-    color: #0d706e;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
+    font-size: 0.84em;
+    color: #f4ede3;
+    font-weight: 700;
   }
   p, li {
-    font-size: 0.84em;
-    line-height: 1.5;
-    color: #33454d;
+    font-size: 0.82em;
+    line-height: 1.55;
+    color: rgba(243, 239, 232, 0.88);
   }
   ul {
-    margin: 0.28em 0 0;
+    margin: 0.3em 0 0;
     padding-left: 1.1em;
   }
   li {
-    margin: 0.16em 0;
+    margin: 0.18em 0;
   }
-  strong { color: #18242b; }
+  strong {
+    color: #ffffff;
+  }
+  header, footer {
+    color: rgba(239, 231, 217, 0.52);
+    font-size: 0.5em;
+    letter-spacing: 0.16em;
+  }
   code {
     font-family: "Cascadia Code", "Consolas", monospace;
-    color: #0d706e;
-    background: rgba(255,255,255,0.7);
-    border: 1px solid rgba(13, 112, 110, 0.16);
+    font-size: 0.88em;
+    color: #f7e0b7;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
     padding: 0.08em 0.28em;
     border-radius: 6px;
   }
-  header, footer {
-    color: #6e787e;
-    font-size: 0.5em;
-    letter-spacing: 0.12em;
-  }
-  .lead {
-    display: grid;
-    grid-template-columns: 1.05fr 0.95fr;
-    gap: 26px;
+  .title-only {
     height: 100%;
-    align-items: center;
-  }
-  .kicker {
-    color: #0d706e;
-    font-size: 0.66em;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-  .chips {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 16px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
-  .chip {
-    padding: 7px 12px;
-    color: #6f3c22;
-    font-size: 0.6em;
-    letter-spacing: 0.08em;
-    border: 1px solid rgba(180, 87, 51, 0.16);
-    background: rgba(180, 87, 51, 0.08);
-    border-radius: 999px;
+  .title-only h1 {
+    font-size: 2.42em;
+    letter-spacing: 0.06em;
+    line-height: 1.26;
   }
-  .board, .panel, .mini, .table-card {
-    border: 1px solid rgba(31, 43, 51, 0.10);
-    background: rgba(255,255,255,0.62);
-    box-shadow: 0 14px 30px rgba(73, 54, 34, 0.06);
-  }
-  .board {
-    padding: 22px;
-    min-height: 360px;
-    border-radius: 22px;
-  }
-  .statgrid {
+  .page {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 18px;
+    grid-template-rows: auto 1fr;
+    gap: 20px;
+    height: 100%;
   }
-  .stat {
-    padding: 12px;
-    border: 1px solid rgba(31, 43, 51, 0.08);
-    background: linear-gradient(180deg, rgba(255,255,255,0.84), rgba(246,239,228,0.84));
-    border-radius: 14px;
-  }
-  .stat b {
-    display: block;
-    font-size: 1.36em;
-    color: #18242b;
-    margin-bottom: 4px;
-  }
-  .stat span {
-    font-size: 0.62em;
-    color: #6e787e;
-    letter-spacing: 0.1em;
-  }
-  .two {
+  .topline {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 220px 1fr;
+    align-items: end;
     gap: 18px;
-    margin-top: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.10);
   }
-  .panel {
-    padding: 18px 18px 16px;
+  .main {
+    min-height: 0;
+  }
+  .agenda {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 8px;
+  }
+  .agenda-item, .card, .step, .img-card, .metric {
+    border: 1px solid rgba(255,255,255,0.10);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03)),
+      linear-gradient(135deg, rgba(255,255,255,0.08), transparent 44%);
     border-radius: 18px;
+    box-shadow:
+      0 10px 24px rgba(0,0,0,0.18),
+      0 1px 0 rgba(255,255,255,0.04) inset;
   }
-  .flow {
-    margin-top: 18px;
+  .agenda-item {
+    padding: 18px 16px;
+    min-height: 150px;
+  }
+  .agenda-item b {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.28em;
+    color: #ffffff;
+  }
+  .split {
+    display: grid;
+    grid-template-columns: 1.02fr 0.98fr;
+    gap: 16px;
+    height: 100%;
+  }
+  .card {
+    padding: 18px 18px 16px;
+  }
+  .image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 18px;
+    display: block;
+  }
+  .photo-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 16px 32px rgba(0,0,0,0.28);
+    min-height: 420px;
+  }
+  .photo-wrap::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.04), rgba(0,0,0,0.36)),
+      linear-gradient(115deg, rgba(255,255,255,0.12), transparent 24%);
+  }
+  .flow-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 14px;
   }
-  .node {
-    min-height: 116px;
-    padding: 15px 14px 13px;
-    border: 1px solid rgba(31, 43, 51, 0.10);
-    background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(241,232,219,0.82));
-    border-radius: 18px;
+  .step {
+    padding: 16px 14px 14px;
+    min-height: 124px;
   }
-  .idx {
-    color: #0d706e;
-    font-size: 0.56em;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
+  .step .n {
+    display: inline-block;
     margin-bottom: 8px;
+    color: #bea27b;
+    font-size: 0.62em;
+    letter-spacing: 0.16em;
   }
-  .node strong {
+  .step strong {
     display: block;
     margin-bottom: 6px;
     font-size: 0.84em;
-    color: #18242b;
-  }
-  .node p {
-    margin: 0;
-    font-size: 0.67em;
-    line-height: 1.42;
-    color: #45565d;
   }
   .arrow {
-    margin: 10px 60px;
-    height: 18px;
-    background: linear-gradient(90deg, rgba(13,112,110,0.22), rgba(180,87,51,0.34), rgba(13,112,110,0.22));
-    clip-path: polygon(0 45%, calc(100% - 18px) 45%, calc(100% - 18px) 25%, 100% 50%, calc(100% - 18px) 75%, calc(100% - 18px) 55%, 0 55%);
+    margin: 10px 68px;
+    height: 24px;
+    position: relative;
   }
-  .miniwrap {
+  .arrow::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 16px;
+    top: 50%;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(190,162,123,0.18), rgba(244,237,227,0.44), rgba(190,162,123,0.18));
+  }
+  .arrow::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    border-top: 1px solid rgba(244,237,227,0.72);
+    border-right: 1px solid rgba(244,237,227,0.72);
+    transform: translateY(-50%) rotate(45deg);
+  }
+  .structure {
     display: grid;
-    grid-template-columns: 1fr 0.7fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 14px;
-    align-items: center;
-    margin-top: 18px;
+    align-items: start;
   }
-  .stack {
-    display: grid;
-    gap: 10px;
+  .img-card {
+    overflow: hidden;
   }
-  .mini {
-    padding: 14px;
-    border-radius: 16px;
+  .img-card img {
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    display: block;
   }
-  .mini strong {
+  .img-body {
+    padding: 14px 14px 16px;
+  }
+  .img-body strong {
     display: block;
     margin-bottom: 6px;
-    font-size: 0.76em;
-    color: #18242b;
   }
-  .center-arrow {
-    text-align: center;
-    font-size: 1.4em;
-    color: #b45733;
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
   }
-  .table-card {
-    margin-top: 16px;
-    overflow: hidden;
-    border-radius: 18px;
+  .compare figure {
+    margin: 0;
   }
-  table {
+  .compare img {
     width: 100%;
-    border-collapse: collapse;
+    height: 280px;
+    object-fit: cover;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.12);
+    display: block;
   }
-  th, td {
-    padding: 10px 12px;
-    border-bottom: 1px solid rgba(31, 43, 51, 0.08);
-    font-size: 0.74em;
-    line-height: 1.4;
-  }
-  th {
-    color: #fffaf4;
-    background: linear-gradient(90deg, #0d706e, #195e6d);
-    text-align: left;
-  }
-  td {
-    color: #33454d;
-    background: rgba(255,255,255,0.66);
-  }
-  tr:nth-child(even) td {
-    background: rgba(241,232,219,0.86);
+  .compare figcaption {
+    margin-top: 8px;
+    font-size: 0.68em;
+    color: rgba(243, 239, 232, 0.72);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
   .three {
     display: grid;
@@ -257,241 +277,264 @@ style: |
     gap: 14px;
     margin-top: 16px;
   }
-  .box {
+  .metric {
     padding: 16px 16px 14px;
-    border: 1px solid rgba(31, 43, 51, 0.10);
-    background: rgba(255,255,255,0.64);
-    border-radius: 18px;
+    min-height: 162px;
   }
-  .box strong {
+  .metric strong {
     display: block;
     margin-bottom: 8px;
-    color: #18242b;
+  }
+  .closing {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    height: 100%;
   }
   blockquote {
-    margin: 16px 0 0;
+    margin: 14px 0 0;
     padding: 12px 14px;
-    border-left: 4px solid #b45733;
-    background: rgba(255,255,255,0.54);
-    color: #33454d;
+    border-left: 3px solid #bea27b;
+    background: rgba(255,255,255,0.06);
     border-radius: 0 14px 14px 0;
+    color: rgba(243, 239, 232, 0.88);
   }
 ---
 
-<div class="lead">
-  <div>
-    <div class="kicker">title</div>
-    <h1>空き家リフォームAI<br>ワークフロー</h1>
-    <p>3Dスキャン済み空間を起点に、視点固定、改修条件入力、ローカルAI生成、Before / After 比較までをつなぐ提案支援フロー。</p>
-    <div class="chips">
-      <div class="chip">3Dスキャン</div>
-      <div class="chip">ローカルAI</div>
-      <div class="chip">Before / After</div>
-      <div class="chip">比較レビュー</div>
+<div class="title-only">
+    <h1>空き家リフォーム<br>ワークフロー</h1>
+</div>
+
+---
+
+<div class="page">
+  <div class="topline">
+    <h2>目次</h2>
+    <h1>目次</h1>
+  </div>
+  <div class="main">
+    <div class="agenda">
+      <div class="agenda-item">
+        <b>01</b>
+        <p>導入</p>
+        <p>背景と目的</p>
+      </div>
+      <div class="agenda-item">
+        <b>02</b>
+        <p>本論</p>
+        <p>ワークフロー</p>
+      </div>
+      <div class="agenda-item">
+        <b>03</b>
+        <p>本論</p>
+        <p>システム構成と出力</p>
+      </div>
+      <div class="agenda-item">
+        <b>04</b>
+        <p>結論</p>
+        <p>まとめと今後</p>
+      </div>
     </div>
   </div>
-  <div class="board">
-    <h2>主題</h2>
-    <div class="statgrid">
-      <div class="stat"><b>提案</b><span>比較できる改修案を出す</span></div>
-      <div class="stat"><b>目的</b><span>認識ズレを減らす</span></div>
-      <div class="stat"><b>対象</b><span>営業・設計・オーナー</span></div>
-      <div class="stat"><b>価値</b><span>意思決定を速くする</span></div>
+</div>
+
+---
+
+<div class="page">
+  <div class="topline">
+    <h2>導入</h2>
+    <h1>背景と目的</h1>
+  </div>
+  <div class="main">
+    <div class="split">
+      <div class="card">
+        <h3>背景</h3>
+        <ul>
+          <li>空き家改修の初期提案は、言葉や参考画像に依存しやすい。</li>
+          <li>関係者ごとに完成イメージがズレやすい。</li>
+          <li>設計前の段階では、比較材料が不足しやすい。</li>
+        </ul>
+        <h3 style="margin-top:18px;">目的</h3>
+        <ul>
+          <li>実空間を起点に、同一視点で改修案を比較できるようにする。</li>
+          <li>提案初期の意思決定を速くする。</li>
+        </ul>
+        <blockquote>画像を上から貼り付けて見せる提案支援の仕組みとして位置づける。</blockquote>
+      </div>
+      <div class="photo-wrap">
+        <img class="image" src="./assets/stock/slide02-old-room.jpg" />
+      </div>
     </div>
-    <blockquote>改修案を、言葉ではなく比較できる画像として提示する。</blockquote>
   </div>
 </div>
 
 ---
 
-### 目次
-# 発表の流れ
-
-<div class="three">
-  <div class="box">
-    <strong>1. 導入</strong>
-    <p>背景と目的を説明する。</p>
+<div class="page">
+  <div class="topline">
+    <h2>本論</h2>
+    <h1>ワークフロー</h1>
   </div>
-  <div class="box">
-    <strong>2. 本論</strong>
-    <p>手法、構成、結果の見方を示す。</p>
-  </div>
-  <div class="box">
-    <strong>3. 結論</strong>
-    <p>まとめと今後の展開を整理する。</p>
-  </div>
-</div>
-
-<blockquote>このデッキは、表紙 → 目次 → 導入 → 本論 → 結論 の順で進む。</blockquote>
-
----
-
-### 導入
-# 背景と目的
-
-<div class="two">
-  <div class="panel">
-    <h2>背景</h2>
-    <ul>
-      <li>空き家改修の初期提案は、言葉や参考画像に依存しやすい。</li>
-      <li>関係者ごとに完成イメージがズレやすい。</li>
-    </ul>
-  </div>
-  <div class="panel">
-    <h2>目的</h2>
-    <ul>
-      <li>実空間を起点に、同じ視点で改修案を比較できるようにする。</li>
-      <li>提案初期の意思決定を速くする。</li>
-    </ul>
-  </div>
-</div>
-
-<blockquote>導入では、AI技術そのものより「認識ズレを減らす仕組み」であることを先に伝える。</blockquote>
-
----
-
-### 本論 / 手法
-# ワークフロー
-
-<div class="flow">
-  <div class="node">
-    <div class="idx">01</div>
-    <strong>3Dスキャン</strong>
-    <p>現地空間を取得し、<code>.glb</code> として扱える状態へ整える。</p>
-  </div>
-  <div class="node">
-    <div class="idx">02</div>
-    <strong>視点を固定</strong>
-    <p>部屋、視点、対象エリアを決めて、比較の前提を作る。</p>
-  </div>
-  <div class="node">
-    <div class="idx">03</div>
-    <strong>条件を入力</strong>
-    <p>テイスト、素材、色、用途などの条件を入れる。</p>
-  </div>
-</div>
-
-<div class="arrow"></div>
-
-<div class="flow">
-  <div class="node">
-    <div class="idx">04</div>
-    <strong>AI生成</strong>
-    <p>ローカルAIで改修後イメージを生成する。</p>
-  </div>
-  <div class="node">
-    <div class="idx">05</div>
-    <strong>比較する</strong>
-    <p>元空間と生成結果を比べて方向性を確認する。</p>
-  </div>
-  <div class="node">
-    <div class="idx">06</div>
-    <strong>次に進む</strong>
-    <p>レビュー後、設計・見積・提案資料へつなぐ。</p>
-  </div>
-</div>
-
-<blockquote>本論の中心は、<code>視点固定 -> 条件入力 -> AI生成 -> 比較</code> の流れである。</blockquote>
-
----
-
-### 本論 / 手法
-# システム構成
-
-<div class="miniwrap">
-  <div class="stack">
-    <div class="mini"><strong>空間レイヤー</strong> 3D viewer / room selection / camera lock</div>
-    <div class="mini"><strong>条件レイヤー</strong> style / material / color / usage / target area</div>
-  </div>
-  <div class="center-arrow">表示<br>⇄<br>生成</div>
-  <div class="stack">
-    <div class="mini"><strong>生成レイヤー</strong> local model / sampler / seed / output</div>
-    <div class="mini"><strong>レビュー層</strong> compare UI / note / handoff</div>
-  </div>
-</div>
-
-<div class="table-card">
-  <table>
-    <tr><th>層</th><th>持つ情報</th><th>役割</th></tr>
-    <tr><td>空間</td><td><code>.glb</code>, room id, camera pose</td><td>比較前提を固定する</td></tr>
-    <tr><td>条件</td><td>style, material, color, usage</td><td>改修案の方向性を決める</td></tr>
-    <tr><td>生成</td><td>prompt, seed, model, sampler</td><td>再現可能な生成として扱う</td></tr>
-  </table>
-</div>
-
----
-
-### 本論 / 結果
-# 結果の見方
-
-<div class="two">
-  <div class="panel">
-    <h2>出力</h2>
-    <ul>
-      <li>改修後イメージ</li>
-      <li>Before / After 比較</li>
-      <li>レビュー用の判断材料</li>
-    </ul>
-  </div>
-  <div class="panel">
-    <h2>評価観点</h2>
-    <ul>
-      <li>同一視点で比較できるか</li>
-      <li>入力条件に沿っているか</li>
-      <li>意思決定に使えるか</li>
-    </ul>
-  </div>
-</div>
-
-<div class="three">
-  <div class="box">
-    <strong>MVPで必須</strong>
-    <ul>
-      <li><code>.glb</code> 表示</li>
-      <li>視点固定</li>
-      <li>AI生成</li>
-    </ul>
-  </div>
-  <div class="box">
-    <strong>制約</strong>
-    <ul>
-      <li>スキャン精度</li>
-      <li>GPU性能</li>
-      <li>自由視点の外置き</li>
-    </ul>
-  </div>
-  <div class="box">
-    <strong>注意点</strong>
-    <ul>
-      <li>施工可能性は保証しない</li>
-      <li>著作権や利用条件に注意</li>
-      <li>レビュー基準を明確にする</li>
-    </ul>
+  <div class="main">
+    <div class="flow-grid">
+      <div class="step">
+        <div class="n">STEP 01</div>
+        <strong>3Dスキャン</strong>
+        <p>現地空間を取得し、<code>.glb</code> として扱える状態へ整える。</p>
+      </div>
+      <div class="step">
+        <div class="n">STEP 02</div>
+        <strong>視点を固定</strong>
+        <p>部屋、視点、対象エリアを決めて、比較の前提を作る。</p>
+      </div>
+      <div class="step">
+        <div class="n">STEP 03</div>
+        <strong>条件を入力</strong>
+        <p>テイスト、素材、色、用途などの条件を設定する。</p>
+      </div>
+    </div>
+    <div class="arrow"></div>
+    <div class="flow-grid">
+      <div class="step">
+        <div class="n">STEP 04</div>
+        <strong>テクスチャ貼り付け</strong>
+        <p>上からテクスチャを重ね、改修後の見え方を作る。</p>
+      </div>
+      <div class="step">
+        <div class="n">STEP 05</div>
+        <strong>比較する</strong>
+        <p>元空間と合成結果を比べて方向性を確認する。</p>
+      </div>
+      <div class="step">
+        <div class="n">STEP 06</div>
+        <strong>次に進む</strong>
+        <p>レビュー後、設計・見積・提案資料へつなぐ。</p>
+      </div>
+    </div>
+    <blockquote>中心の流れは、視点固定 → 条件入力 → テクスチャ貼り付け → 比較 である。</blockquote>
   </div>
 </div>
 
 ---
 
-### 結論
-# まとめ
-
-<div class="two">
-  <div class="panel">
-    <h2>要点</h2>
-    <ul>
-      <li>3D空間を起点に改修案を比較可能な形で提示できる。</li>
-      <li>関係者の会話を抽象論から具体論へ移しやすい。</li>
-      <li>提案初期の意思決定を速くできる。</li>
-    </ul>
+<div class="page">
+  <div class="topline">
+    <h2>本論</h2>
+    <h1>システム構成</h1>
   </div>
-  <div class="panel">
-    <h2>今後</h2>
-    <ul>
-      <li>レビューコメントの構造化</li>
-      <li>条件セットのテンプレート化</li>
-      <li>提案資料への半自動反映</li>
-    </ul>
+  <div class="main">
+    <div class="structure">
+      <div class="img-card">
+        <img src="./assets/stock/slide04-3d-laptop.jpg" />
+        <div class="img-body">
+          <strong>ベース空間</strong>
+          <p>部屋と視点を選び、比較の前提となる見え方を固定する。</p>
+        </div>
+      </div>
+      <div class="img-card">
+        <img src="./assets/stock/slide03-blueprint.jpg" />
+        <div class="img-body">
+          <strong>テクスチャ</strong>
+          <p>上から貼る素材やパターンを用意して方向性を決める。</p>
+        </div>
+      </div>
+      <div class="img-card">
+        <img src="./assets/stock/slide08-modern-empty-interior.jpg" />
+        <div class="img-body">
+          <strong>テクスチャ合成</strong>
+          <p>テクスチャを上から重ねた見え方を表示し、比較表示へ渡す。</p>
+        </div>
+      </div>
+    </div>
+    <blockquote>ビューアは「何をどこから見るか」、合成側は「どう見せるか」を担当する。</blockquote>
   </div>
 </div>
 
-<blockquote>結論として、この仕組みは設計の代替ではなく、提案初期の比較と判断を支える可視化レイヤーである。</blockquote>
+---
+
+<div class="page">
+  <div class="topline">
+    <h2>本論</h2>
+    <h1>出力の見せ方</h1>
+  </div>
+  <div class="main">
+    <div class="compare">
+      <figure>
+        <img src="./assets/stock/slide02-old-room.jpg" />
+        <figcaption>Before</figcaption>
+      </figure>
+      <figure>
+        <img src="./assets/stock/slide06-modern-living.jpg" />
+        <figcaption>After</figcaption>
+      </figure>
+    </div>
+    <blockquote>出力は完成図ではなく、比較と判断のための材料として扱う。</blockquote>
+  </div>
+</div>
+
+---
+
+<div class="page">
+  <div class="topline">
+    <h2>本論</h2>
+    <h1>評価と制約</h1>
+  </div>
+  <div class="main">
+    <div class="three">
+      <div class="metric">
+        <strong>評価の観点</strong>
+        <ul>
+          <li>同一視点で比較できるか</li>
+          <li>入力条件に沿っているか</li>
+          <li>意思決定に使えるか</li>
+        </ul>
+      </div>
+      <div class="metric">
+        <strong>技術的な制約</strong>
+        <ul>
+          <li>スキャン精度に依存する</li>
+          <li>GPU性能で速度が変わる</li>
+          <li>自由視点の整合性はMVP外</li>
+        </ul>
+      </div>
+      <div class="metric">
+        <strong>運用上の注意</strong>
+        <ul>
+          <li>施工可能性は保証しない</li>
+          <li>著作権や利用条件に注意</li>
+          <li>レビュー基準を明確にする</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+<div class="page">
+  <div class="topline">
+    <h2>結論</h2>
+    <h1>まとめ</h1>
+  </div>
+  <div class="main">
+    <div class="closing">
+      <div class="card">
+        <h3>要点</h3>
+        <ul>
+          <li>3D空間を起点に、改修案を比較可能な形で提示できる。</li>
+          <li>関係者の会話を抽象論から具体論へ移しやすい。</li>
+          <li>提案初期の意思決定を速くできる。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>今後の展開</h3>
+        <ul>
+          <li>レビューコメントの構造化</li>
+          <li>条件セットのテンプレート化</li>
+          <li>提案資料への半自動反映</li>
+        </ul>
+      </div>
+    </div>
+    <blockquote>この仕組みは設計の代替ではなく、提案初期の比較と判断を支える可視化レイヤーである。</blockquote>
+  </div>
+</div>
