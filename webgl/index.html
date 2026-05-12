@@ -52,12 +52,15 @@
             left: 16px;
             z-index: 2;
             width: min(420px, calc(100vw - 32px));
+            max-height: calc(100vh - 32px);
             padding: 16px 18px;
             border: 1px solid var(--border);
             border-radius: 16px;
             background: var(--panel);
             backdrop-filter: blur(12px);
             box-shadow: 0 12px 30px rgba(31, 45, 61, 0.12);
+            overflow-y: auto;
+            overscroll-behavior: contain;
         }
 
         #ui.hidden {
@@ -223,6 +226,7 @@
                 top: 12px;
                 left: 12px;
                 width: calc(100vw - 24px);
+                max-height: calc(100vh - 24px);
                 padding: 14px 16px;
             }
         }
@@ -253,6 +257,7 @@
         <div id="meta">
             <div id="model-path">model: test_room01.glb</div>
             <div id="model-stats">stats: waiting</div>
+            <div id="fps-state">fps: waiting</div>
             <div id="camera-mode">mode: color</div>
             <div id="camera-matrices">matrices: waiting</div>
             <div id="pick-result">pick: waiting</div>
@@ -313,6 +318,7 @@
         const statusEl = document.getElementById('status');
         const modelPathEl = document.getElementById('model-path');
         const modelStatsEl = document.getElementById('model-stats');
+        const fpsStateEl = document.getElementById('fps-state');
         const cameraModeEl = document.getElementById('camera-mode');
         const cameraMatricesEl = document.getElementById('camera-matrices');
         const pickResultEl = document.getElementById('pick-result');
@@ -415,6 +421,8 @@
         let nextSelectionGroupId = 2;
         let textureTargetGroupIds = [];
         let isHideMode = false;
+        let fpsFrameCount = 0;
+        let fpsLastTimestamp = performance.now();
 
         function setStatus(message, isError = false) {
             statusEl.textContent = message;
@@ -495,6 +503,19 @@
             const target = state.camera.target.map((value) => value.toFixed(2)).join(', ');
             cameraModeEl.textContent = `mode: ${state.mode}`;
             cameraMatricesEl.textContent = `camera: pos(${position}) target(${target})`;
+        }
+
+        function updateFps(now) {
+            fpsFrameCount += 1;
+            const elapsed = now - fpsLastTimestamp;
+            if (elapsed < 500) {
+                return;
+            }
+
+            const fps = (fpsFrameCount * 1000) / elapsed;
+            fpsStateEl.textContent = `fps: ${fps.toFixed(1)}`;
+            fpsFrameCount = 0;
+            fpsLastTimestamp = now;
         }
 
         function updateSelectionUi() {
@@ -1946,9 +1967,10 @@
         syncTextureTargetState();
         applyHideMode();
 
-        function animate() {
+        function animate(now = performance.now()) {
             requestAnimationFrame(animate);
             controls.update();
+            updateFps(now);
             updateCameraDebug();
             renderer.render(scene, camera);
             drawProjectedSelection();
